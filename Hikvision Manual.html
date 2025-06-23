@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>คู่มือ NVR Hikvision แบบ Interactive</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@400;500;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Calm Harmony (Stone, Amber, Slate) -->
+    <!-- Application Structure Plan: ออกแบบเป็น Interactive Guide แบบ Task-Oriented โดยใช้ Side Navigation Menu ผู้ใช้สามารถคลิกเพื่อเลือกหัวข้อที่สนใจได้ทันที เช่น "การดูภาพย้อนหลัง" หรือ "การสำรองข้อมูล" เนื้อหาในส่วนกลางจะเปลี่ยนไปตามหัวข้อที่เลือก โครงสร้างนี้ถูกเลือกเพราะมันตรงกับพฤติกรรมของผู้ใช้ที่ต้องการแก้ปัญหาเฉพาะหน้า ทำให้เข้าถึงข้อมูลได้รวดเร็วกว่าการอ่านคู่มือตามลำดับตั้งแต่ต้นจนจบ และแบ่งเนื้อหาที่ซับซ้อน (เช่น การเข้าระบบ) ออกเป็นแท็บย่อยเพื่อลดความสับสน -->
+    <!-- Visualization & Content Choices: เนื่องจากเนื้อหาเป็นคู่มือการใช้งาน จึงไม่มีข้อมูลเชิงปริมาณสำหรับสร้างกราฟ แต่จะเน้นการนำเสนอข้อมูลเชิงขั้นตอนให้เข้าใจง่ายที่สุด: [Login] -> Goal: Inform -> Presentation: ใช้แท็บ (Tabs) เพื่อแยกวิธี Login 2 รูปแบบ พร้อมภาพจำลองหน้าจอ Login -> Interaction: คลิกเพื่อสลับดูเนื้อหา -> Justification: ลดความซับซ้อนในหน้าจอเดียว [Playback] -> Goal: Organize -> Presentation: สร้างไดอะแกรมของหน้าจอ Playback ด้วย HTML/Tailwind เพื่อให้เห็นภาพชัดเจนประกอบกับคำอธิบายทีละขั้นตอน -> Justification: ภาพช่วยอธิบาย UI ที่ซับซ้อนได้ดีกว่าข้อความอย่างเดียว [Other sections] -> Goal: Inform -> Presentation: ใช้การ์ดและรายการพร้อมไอคอน (Unicode) และภาพจำลองเมนู/ขั้นตอน เพื่อให้อ่านง่ายและน่าสนใจ -> Justification: จัดระเบียบข้อมูลให้กระชับและดึงดูดสายตา -> Library/Method: Vanilla JS, Tailwind CSS -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Sarabun', sans-serif;
+        }
+        .nav-button.active {
+            background-color: #f59e0b; /* amber-500 */
+            color: #ffffff;
+            font-weight: 700;
+        }
+        .content-section {
+            display: none;
+        }
+        .content-section.active {
+            display: block;
+        }
+        .tab-button.active {
+            border-bottom-width: 4px;
+            border-color: #f59e0b; /* amber-500 */
+            color: #1e293b; /* slate-800 */
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800">
+
+    <div class="container mx-auto p-4 md:p-8">
+        
+        <header class="text-center mb-8">
+            <h1 class="text-3xl md:text-4xl font-bold text-slate-900">คู่มือใช้งาน NVR Hikvision</h1>
+            <p class="text-slate-600 mt-2">คู่มือฉบับ Interactive สำหรับการใช้งานฟังก์ชันพื้นฐาน</p>
+        </header>
+
+        <div class="md:grid md:grid-cols-12 md:gap-8">
+            
+            <!-- Navigation -->
+            <aside class="md:col-span-3 lg:col-span-3 mb-6 md:mb-0">
+                <nav id="main-nav" class="flex flex-col space-y-2">
+                    <button data-target="login" class="nav-button w-full text-left p-3 rounded-lg transition-colors duration-200 hover:bg-amber-400 hover:text-white">1. การเข้าสู่ระบบ</button>
+                    <button data-target="live-view" class="nav-button w-full text-left p-3 rounded-lg transition-colors duration-200 hover:bg-amber-400 hover:text-white">2. การดูภาพสด</button>
+                    <button data-target="playback" class="nav-button w-full text-left p-3 rounded-lg transition-colors duration-200 hover:bg-amber-400 hover:text-white">3. การดูภาพย้อนหลัง</button>
+                    <button data-target="backup" class="nav-button w-full text-left p-3 rounded-lg transition-colors duration-200 hover:bg-amber-400 hover:text-white">4. การสำรองข้อมูล</button>
+                    <button data-target="shutdown" class="nav-button w-full text-left p-3 rounded-lg transition-colors duration-200 hover:bg-amber-400 hover:text-white">5. การปิดเครื่อง</button>
+                    <button data-target="recommend" class="nav-button w-full text-left p-3 rounded-lg transition-colors duration-200 hover:bg-amber-400 hover:text-white">6. ข้อแนะนำเพิ่มเติม</button>
+                </nav>
+            </aside>
+
+            <!-- Content -->
+            <main id="main-content" class="md:col-span-9 lg:col-span-9 bg-white p-6 rounded-xl shadow-lg">
+                
+                <!-- Section 1: Login -->
+                <section id="login" class="content-section">
+                    <h2 class="text-2xl font-bold mb-4">1. การเข้าสู่ระบบ (Login)</h2>
+                    <p class="text-slate-600 mb-6">การเข้าสู่ระบบเป็นขั้นตอนแรกเพื่อเข้าถึงฟังก์ชันทั้งหมดของเครื่องบันทึก คุณสามารถเลือกเข้าระบบได้จาก 2 วิธีหลัก คือการใช้งานผ่านหน้าจอที่เชื่อมต่อโดยตรง หรือผ่านโปรแกรม Web Browser บนคอมพิวเตอร์</p>
+                    
+                    <div class="border-b border-slate-200 mb-4">
+                        <nav id="login-tabs" class="-mb-px flex space-x-6" aria-label="Tabs">
+                            <button data-tab="direct" class="tab-button whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm text-slate-500 hover:text-slate-700 hover:border-slate-300">
+                                ผ่านหน้าจอโดยตรง
+                            </button>
+                            <button data-tab="browser" class="tab-button whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm text-slate-500 hover:text-slate-700 hover:border-slate-300">
+                                ผ่าน Web Browser
+                            </button>
+                        </nav>
+                    </div>
+
+                    <div id="direct-content" class="login-tab-content space-y-4">
+                        <div class="p-4 bg-slate-50 rounded-lg">
+                            <h3 class="font-bold text-lg">ขั้นตอนการเข้าระบบผ่านหน้าจอ</h3>
+                            <ol class="list-decimal list-inside mt-2 space-y-2 text-slate-700">
+                                <li>ขยับเมาส์ที่เชื่อมต่อกับเครื่องบันทึกเพื่อเรียกหน้าต่าง Login</li>
+                                <li>ใส่ชื่อผู้ใช้ (Username: โดยทั่วไปคือ <code class="bg-slate-200 px-1 rounded">admin</code>) และรหัสผ่าน (Password) ที่ได้รับจากผู้ติดตั้ง</li>
+                                <li>คลิกปุ่ม "Login" เพื่อเข้าสู่ระบบ</li>
+                            </ol>
+                        </div>
+                    </div>
+
+                    <div id="browser-content" class="login-tab-content space-y-4" style="display: none;">
+                        <div class="p-4 bg-slate-50 rounded-lg">
+                           <h3 class="font-bold text-lg">ขั้นตอนการเข้าระบบผ่าน Web Browser</h3>
+                            <ol class="list-decimal list-inside mt-2 space-y-2 text-slate-700">
+                                <li>เปิดโปรแกรม Web Browser (เช่น Google Chrome)</li>
+                                <li>พิมพ์ IP Address ของเครื่องบันทึกในช่องที่อยู่ (เช่น <code class="bg-slate-200 px-1 rounded">192.168.1.108</code>) แล้วกด Enter</li>
+                                <li>ใส่ชื่อผู้ใช้และรหัสผ่านเดียวกันกับวิธีแรก</li>
+                                <li>คลิก "Login" (อาจต้องติดตั้ง Plugin ในครั้งแรก)</li>
+                            </ol>
+                        </div>
+                    </div>
+                     <div class="mt-6 border-2 border-slate-200 rounded-lg p-4 bg-slate-100 text-center">
+                        <h4 class="font-bold text-slate-700 mb-4">ตัวอย่างหน้าจอ Login ของ Hikvision</h4>
+                        <div class="bg-white p-6 rounded-lg shadow-inner max-w-xs mx-auto">
+                            <div class="text-center mb-4">
+                                <h3 class="text-2xl font-bold text-slate-800">HIKVISION</h3>
+                                <p class="text-sm text-slate-500">NVR Login</p>
+                            </div>
+                            <div class="space-y-3">
+                                <div class="text-left text-sm text-slate-600">Username</div>
+                                <input type="text" value="admin" class="w-full p-2 border rounded-md bg-slate-50 text-slate-400" disabled>
+                                <div class="text-left text-sm text-slate-600">Password</div>
+                                <input type="password" value="password" class="w-full p-2 border rounded-md bg-slate-50 text-slate-400" disabled>
+                                <button class="w-full bg-slate-700 text-white p-2 mt-2 rounded-md font-bold hover:bg-slate-800">Login</button>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Section 2: Live View -->
+                <section id="live-view" class="content-section">
+                    <h2 class="text-2xl font-bold mb-4">2. การดูภาพสด (Live View)</h2>
+                    <p class="text-slate-600 mb-6">หลังจากเข้าสู่ระบบสำเร็จ คุณจะเห็นภาพสดจากกล้องทุกตัวแบบเรียลไทม์ นี่คือหน้าจอหลักที่คุณจะใช้งานบ่อยที่สุด คุณสามารถปรับเปลี่ยนมุมมองและเลือกดูกล้องที่สนใจเป็นพิเศษได้</p>
+                    <div class="space-y-4">
+                        <div class="p-4 bg-slate-50 rounded-lg flex items-start">
+                            <span class="text-2xl mr-4">🖥️</span>
+                            <div>
+                                <h3 class="font-bold">การเปลี่ยนมุมมอง (Split Screen)</h3>
+                                <p class="text-slate-700">ที่แถบเครื่องมือด้านล่างของจอ จะมีไอคอนสำหรับเปลี่ยนรูปแบบการแสดงผล (เช่น 1, 4, 9, 16 ช่อง) ให้คลิกเพื่อเลือกจำนวนกล้องที่ต้องการดูพร้อมกัน</p>
+                            </div>
+                        </div>
+                         <div class="p-4 bg-slate-50 rounded-lg flex items-start">
+                            <span class="text-2xl mr-4">🔍</span>
+                            <div>
+                                <h3 class="font-bold">การดูภาพเต็มจอ (Full Screen)</h3>
+                                <p class="text-slate-700">ดับเบิ้ลคลิก (Double-click) ที่ภาพจากกล้องตัวที่ต้องการ เพื่อขยายเป็นภาพเต็มจอ และดับเบิ้ลคลิกอีกครั้งเพื่อย่อกลับมามุมมองเดิม</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-6 border-2 border-slate-200 rounded-lg p-4 bg-slate-100">
+                        <h4 class="font-bold text-slate-700 mb-4 text-center">ตัวอย่างหน้าจอ Live View (มุมมอง 4 กล้อง)</h4>
+                        <div class="grid grid-cols-2 gap-2 bg-slate-800 p-2 rounded-lg max-w-md mx-auto">
+                            <div class="bg-black aspect-video rounded flex items-center justify-center text-white text-xs opacity-80">
+                                <span class="opacity-50">CAM 01</span>
+                            </div>
+                            <div class="bg-black aspect-video rounded flex items-center justify-center text-white text-xs opacity-80">
+                                <span class="opacity-50">CAM 02</span>
+                            </div>
+                            <div class="bg-black aspect-video rounded flex items-center justify-center text-white text-xs opacity-80">
+                                <span class="opacity-50">CAM 03</span>
+                            </div>
+                            <div class="bg-black aspect-video rounded flex items-center justify-center text-white text-xs opacity-80">
+                                <span class="opacity-50">CAM 04</span>
+                            </div>
+                        </div>
+                        <div class="flex justify-center space-x-2 mt-4 text-xs">
+                            <button class="bg-slate-300 p-2 rounded w-10">1</button>
+                            <button class="bg-amber-400 text-white p-2 rounded w-10">4</button>
+                            <button class="bg-slate-300 p-2 rounded w-10">9</button>
+                            <button class="bg-slate-300 p-2 rounded w-10">16</button>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Section 3: Playback -->
+                <section id="playback" class="content-section">
+                    <h2 class="text-2xl font-bold mb-4">3. การดูภาพย้อนหลัง (Playback)</h2>
+                    <p class="text-slate-600 mb-6">ฟังก์ชันนี้ใช้สำหรับตรวจสอบเหตุการณ์ที่เกิดขึ้นไปแล้ว คุณสามารถเลือกวัน เวลา และกล้องที่ต้องการดูได้อย่างละเอียด ด้านล่างนี้คือภาพรวมของหน้าจอและขั้นตอนการใช้งาน</p>
+                    <div class="p-4 bg-slate-50 rounded-lg">
+                        <h3 class="font-bold text-lg mb-4 text-center">ภาพรวมหน้าจอ Playback</h3>
+                        <div class="border-2 border-slate-300 rounded-lg p-4 grid grid-cols-4 gap-2 text-xs text-center">
+                            <div class="col-span-3 bg-slate-200 h-32 flex justify-center items-center font-bold text-slate-600 rounded">พื้นที่แสดงวิดีโอ</div>
+                            <div class="col-span-1 bg-amber-100 p-2 rounded">
+                                <p class="font-bold">1. Camera List</p>
+                                <ul class="text-left mt-1">
+                                    <li>☑ กล้อง 1</li>
+                                    <li>☐ กล้อง 2</li>
+                                    <li>☑ กล้อง 3</li>
+                                </ul>
+                                <p class="font-bold mt-2">2. Calendar</p>
+                                <div class="bg-white p-1 mt-1 font-bold text-amber-600 border border-amber-500 rounded">23</div>
+                            </div>
+                            <div class="col-span-4 bg-sky-100 p-2 mt-2 rounded">
+                                <p class="font-bold">3. Timeline</p>
+                                <div class="w-full bg-slate-300 h-4 mt-1 rounded-full relative">
+                                    <div class="absolute h-4 bg-sky-500 rounded-full" style="left: 10%; width: 60%;"></div>
+                                    <div class="absolute h-4 bg-red-500 rounded-full" style="left: 40%; width: 5%;"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                     <div class="mt-6">
+                        <h3 class="font-bold text-lg">ขั้นตอนการดูภาพย้อนหลัง</h3>
+                        <ol class="list-decimal list-inside mt-2 space-y-2 text-slate-700">
+                            <li>ที่หน้าจอ Live View <strong>คลิกขวา</strong> แล้วเลือกเมนู <strong>"Playback"</strong></li>
+                            <li>ที่แผงควบคุมด้านขวา:
+                                <ul class="list-disc list-inside ml-4 mt-1">
+                                    <li><strong>(1) Camera List:</strong> ติ๊กเลือกกล้องที่ต้องการดู</li>
+                                    <li><strong>(2) Calendar:</strong> คลิกเลือกวันที่ที่ต้องการดู</li>
+                                </ul>
+                            </li>
+                            <li>ที่แถบเวลา <strong>(3) Timeline</strong> ด้านล่าง:
+                                <ul class="list-disc list-inside ml-4 mt-1">
+                                    <li>แถบสีฟ้า/เขียว: คือช่วงเวลาที่บันทึกตลอดเวลา</li>
+                                    <li>แถบสีแดง/เหลือง: คือช่วงเวลาที่บันทึกเมื่อมีสิ่งเคลื่อนไหว</li>
+                                </ul>
+                            </li>
+                             <li>คลิกที่ช่วงเวลาใน Timeline เพื่อเริ่มเล่นภาพ หรือใช้ปุ่มควบคุม (Play, Pause) ด้านล่าง</li>
+                        </ol>
+                    </div>
+                </section>
+
+                <!-- Section 4: Backup -->
+                <section id="backup" class="content-section">
+                     <h2 class="text-2xl font-bold mb-4">4. การสำรองข้อมูล (Backup/Export)</h2>
+                    <p class="text-slate-600 mb-6">เมื่อคุณพบเหตุการณ์สำคัญและต้องการบันทึกคลิปวิดีโอเก็บไว้เป็นหลักฐาน คุณสามารถตัดคลิปและสำรองข้อมูลลงใน USB Flash Drive ได้ตามขั้นตอนต่อไปนี้</p>
+                     <div class="p-4 bg-slate-50 rounded-lg">
+                        <h3 class="font-bold text-lg">ขั้นตอนการตัดและสำรองคลิป</h3>
+                        <ol class="list-decimal list-inside mt-2 space-y-3 text-slate-700">
+                           <li>เสียบ USB Flash Drive เข้าที่ช่อง USB ของเครื่องบันทึก</li>
+                           <li>เข้าสู่โหมด <strong>Playback</strong> และค้นหาช่วงเวลาของเหตุการณ์ที่ต้องการ</li>
+                           <li>เมื่อวิดีโอเล่นถึงจุดเริ่มต้นของเหตุการณ์ ให้คลิกไอคอน <strong>"กรรไกร" ✂️ (Start Clipping)</strong></li>
+                           <li>ปล่อยให้วิดีโอเล่นไปจนถึงจุดสิ้นสุดของเหตุการณ์ แล้วคลิกไอคอน <strong>"กรรไกร" ✂️ (Stop Clipping)</strong> อีกครั้ง</li>
+                           <li>หน้าต่างใหม่จะแสดงรายการคลิปที่คุณตัด ให้ติ๊กเลือกคลิปนั้น แล้วกดปุ่ม <strong>"Export"</strong></li>
+                           <li>เลือกว่าจะบันทึกไปที่ USB Drive ของคุณ แล้วกด OK เพื่อเริ่มบันทึกไฟล์</li>
+                        </ol>
+                    </div>
+                    <div class="mt-6 border-2 border-slate-200 rounded-lg p-4 bg-slate-100">
+                        <h4 class="font-bold text-slate-700 mb-4 text-center">ภาพรวมขั้นตอนการสำรองข้อมูล</h4>
+                        <div class="flex items-center justify-center space-x-1 sm:space-x-2 md:space-x-4 text-xs md:text-sm text-center">
+                            <div class="p-2 bg-white rounded-lg shadow min-w-[60px]">
+                                <p class="text-2xl">🔍</p>
+                                <p>ค้นหาคลิป</p>
+                            </div>
+                            <div class="text-slate-400 font-bold text-xl md:text-2xl">→</div>
+                            <div class="p-2 bg-white rounded-lg shadow min-w-[60px]">
+                                <p class="text-2xl">✂️</p>
+                                <p>กดปุ่มตัด</p>
+                            </div>
+                            <div class="text-slate-400 font-bold text-xl md:text-2xl">→</div>
+                            <div class="p-2 bg-white rounded-lg shadow min-w-[60px]">
+                                <p class="text-2xl">✅</p>
+                                <p>เลือกคลิป</p>
+                            </div>
+                            <div class="text-slate-400 font-bold text-xl md:text-2xl">→</div>
+                             <div class="p-2 bg-white rounded-lg shadow min-w-[60px]">
+                                <p class="text-2xl">💾</p>
+                                <p>Export</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Section 5: Shutdown -->
+                <section id="shutdown" class="content-section">
+                    <h2 class="text-2xl font-bold mb-4">5. การปิดเครื่อง (Shutdown)</h2>
+                    <p class="text-slate-600 mb-6">เพื่อป้องกันความเสียหายของฮาร์ดดิสก์และข้อมูลที่บันทึกไว้ ควรทำการปิดระบบให้ถูกต้องทุกครั้ง และหลีกเลี่ยงการดึงปลั๊กไฟออกโดยตรงอย่างเด็ดขาด</p>
+                    <div class="p-6 bg-red-100 border-l-4 border-red-500 text-red-800 rounded-lg">
+                        <h3 class="font-bold text-lg">⚠️ ข้อควรระวังสูงสุด</h3>
+                        <p class="mt-2">ห้ามดึงปลั๊กไฟออกโดยตรง เพราะอาจทำให้ Hard disk เสียหายและข้อมูลสูญหายได้</p>
+                    </div>
+                    <div class="mt-6 p-4 bg-slate-50 rounded-lg">
+                        <h3 class="font-bold text-lg">ขั้นตอนการปิดเครื่องที่ถูกต้อง</h3>
+                        <ol class="list-decimal list-inside mt-2 space-y-2 text-slate-700">
+                           <li><strong>คลิกขวา</strong> ที่หน้าจอหลัก แล้วเลือก <strong>"Menu"</strong></li>
+                           <li>ไปที่ไอคอนเมนู <strong>"Shutdown"</strong> ดังภาพตัวอย่าง</li>
+                           <li>คลิกที่ปุ่ม <strong>"Shutdown"</strong> และรอจนกว่าเครื่องจะดับสนิท</li>
+                        </ol>
+                    </div>
+                    <div class="mt-6 border-2 border-slate-200 rounded-lg p-4 bg-slate-100">
+                        <h4 class="font-bold text-slate-700 mb-4 text-center">ตัวอย่างหน้าจอเมนูหลัก</h4>
+                         <p class="text-center text-sm text-slate-500 mb-4">หลังจากคลิกขวาและเลือก "Menu" ให้มองหาไอคอน "Shutdown"</p>
+                        <div class="grid grid-cols-4 gap-4 max-w-md mx-auto p-4 bg-white rounded-lg shadow-inner">
+                            <div class="flex flex-col items-center justify-center p-2 bg-slate-200 rounded-lg text-xs text-center aspect-square">
+                                <span>⚙️</span>
+                                <span class="mt-1">Configuration</span>
+                            </div>
+                             <div class="flex flex-col items-center justify-center p-2 bg-slate-200 rounded-lg text-xs text-center aspect-square">
+                                <span>🔍</span>
+                                <span class="mt-1">Search</span>
+                            </div>
+                            <div class="flex flex-col items-center justify-center p-2 bg-slate-200 rounded-lg text-xs text-center aspect-square">
+                                <span>💾</span>
+                                <span class="mt-1">HDD</span>
+                            </div>
+                            <div class="flex flex-col items-center justify-center p-2 bg-slate-200 rounded-lg text-xs text-center aspect-square">
+                                <span>🔧</span>
+                                <span class="mt-1">Maintenance</span>
+                            </div>
+                            <div class="flex flex-col items-center justify-center p-2 bg-slate-200 rounded-lg text-xs text-center aspect-square">
+                                <span>▶️</span>
+                                <span class="mt-1">Playback</span>
+                            </div>
+                            <div class="flex flex-col items-center justify-center p-2 bg-slate-200 rounded-lg text-xs text-center aspect-square">
+                                <span>📤</span>
+                                <span class="mt-1">Export</span>
+                            </div>
+                            <div class="flex flex-col items-center justify-center p-2 bg-slate-200 rounded-lg text-xs text-center aspect-square">
+                                <span class="opacity-50">...</span>
+                            </div>
+                             <div class="flex flex-col items-center justify-center p-2 bg-red-200 border-2 border-red-500 rounded-lg text-xs text-center aspect-square">
+                                <span class="text-red-600 text-2xl">🔌</span>
+                                <span class="mt-1 font-bold text-red-700">Shutdown</span>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Section 6: Recommend -->
+                <section id="recommend" class="content-section">
+                    <h2 class="text-2xl font-bold mb-4">6. ข้อแนะนำเพิ่มเติม</h2>
+                    <p class="text-slate-600 mb-6">นอกจากการใช้งานพื้นฐานแล้ว การดูแลรักษาระบบเบื้องต้นจะช่วยให้เครื่องบันทึกของคุณทำงานได้อย่างมีประสิทธิภาพและปลอดภัยในระยะยาว</p>
+                     <div class="space-y-4">
+                        <div class="p-4 bg-slate-50 rounded-lg flex items-start">
+                            <span class="text-2xl mr-4">🔐</span>
+                            <div>
+                                <h3 class="font-bold">เปลี่ยนรหัสผ่าน</h3>
+                                <p class="text-slate-700">เพื่อความปลอดภัยสูงสุด ควรเปลี่ยนรหัสผ่านเริ่มต้นที่ผู้ติดตั้งให้มา เป็นรหัสผ่านที่คุณตั้งเองและจำได้</p>
+                            </div>
+                        </div>
+                         <div class="p-4 bg-slate-50 rounded-lg flex items-start">
+                            <span class="text-2xl mr-4">💾</span>
+                            <div>
+                                <h3 class="font-bold">ตรวจสอบสถานะ Hard disk</h3>
+                                <p class="text-slate-700">ควรตรวจสอบสถานะของ Hard disk เป็นครั้งคราวในเมนู <code class="bg-slate-200 px-1 rounded">Menu > HDD</code> เพื่อให้แน่ใจว่าระบบยังคงบันทึกภาพได้ตามปกติ</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+            </main>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const mainNav = document.getElementById('main-nav');
+            const contentContainer = document.getElementById('main-content');
+            const navButtons = mainNav.querySelectorAll('.nav-button');
+            const contentSections = contentContainer.querySelectorAll('.content-section');
+
+            const loginTabs = document.getElementById('login-tabs');
+            const loginTabButtons = loginTabs.querySelectorAll('.tab-button');
+            const loginTabContents = document.querySelectorAll('.login-tab-content');
+
+            function showSection(targetId) {
+                navButtons.forEach(btn => {
+                    if (btn.dataset.target === targetId) {
+                        btn.classList.add('active');
+                    } else {
+                        btn.classList.remove('active');
+                    }
+                });
+
+                contentSections.forEach(section => {
+                    if (section.id === targetId) {
+                        section.classList.add('active');
+                    } else {
+                        section.classList.remove('active');
+                    }
+                });
+            }
+            
+            function showLoginTab(targetId) {
+                loginTabButtons.forEach(btn => {
+                     if (btn.dataset.tab === targetId) {
+                        btn.classList.add('active');
+                    } else {
+                        btn.classList.remove('active');
+                    }
+                });
+
+                loginTabContents.forEach(content => {
+                    if (content.id === `${targetId}-content`) {
+                        content.style.display = 'block';
+                    } else {
+                        content.style.display = 'none';
+                    }
+                });
+            }
+
+            mainNav.addEventListener('click', (e) => {
+                if (e.target.matches('.nav-button')) {
+                    showSection(e.target.dataset.target);
+                }
+            });
+
+            loginTabs.addEventListener('click', (e) => {
+                 if (e.target.matches('.tab-button')) {
+                    showLoginTab(e.target.dataset.tab);
+                }
+            });
+
+            // Show initial section
+            showSection('login');
+            showLoginTab('direct');
+        });
+    </script>
+
+</body>
+</html>
